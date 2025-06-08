@@ -1,4 +1,5 @@
-from models.Like import Like
-from models.Follow import Follow
+from models.User import User
+from models.Follower import Follower
 from models.Comment import Comment
 from models.Post import Post
+from models.Media import Media

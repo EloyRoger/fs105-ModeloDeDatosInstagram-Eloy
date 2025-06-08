@@ -1,23 +1,21 @@
 from database.db import db
-
+from datetime import datetime
 
 class Post (db.Model):
 
-    __tablename__ = "Post"
+    __tablename__ = "post"
 
-    UserID = db.Column(db.Integer, primary_key=True)
-    Username = db.Column(db.String(250), unique=True, nullable=False)
-    Email = db.Column(db.String(50), unique=True)
-    PasswordHash = db.Column(db.String(50))
-    CreatedAt = db.Column(db.Integer)
-
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    
+    #Relations
+    user= db.relationship ("User", back_populates="post")
+    comments= db.relationship ("Comment", back_populates="post")
+    media= db.relationship ("Media", back_populates="post")
 
     def serialize(self):
         return {
-            "UserID": self.id,
-            "Username": self.Username,
-            "Email": self.Email,
-            "PasswordHash": self.PasswordHash,
-            "CreatedAt": self.CreatedAt,
+            "id": self.id,
+            "post": self.post,
         }
 
