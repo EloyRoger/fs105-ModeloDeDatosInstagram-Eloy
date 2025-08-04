@@ -1,21 +1,25 @@
-from database.db import db
-from datetime import datetime
+from typing import List, TYPE_CHECKING
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, ForeignKey
+from src.database.db import db
 
-class Post (db.Model):
+if TYPE_CHECKING:
+    from src.models.User import User
+    from src.models.Comment import Comment
+    from src.models.Media import Media
 
-    __tablename__ = "post"
+class Post(db.Model):
+    __tablename__ = "posts"
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    
-    #Relations
-    user= db.relationship ("User", back_populates="post")
-    comments= db.relationship ("Comment", back_populates="post")
-    media= db.relationship ("Media", back_populates="post")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+
+    user: Mapped["User"] = relationship("User", back_populates="posts")
+    comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="post")
+    media: Mapped[List["Media"]] = relationship("Media", back_populates="post")
 
     def serialize(self):
         return {
             "id": self.id,
-            "post": self.post,
+            "user_id": self.user_id,
         }
-

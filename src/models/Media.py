@@ -1,19 +1,22 @@
-from database.db import db
-from datetime import datetime
+from typing import TYPE_CHECKING
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String, ForeignKey
+from src.database.db import db
 
-class Media (db.Model):
+if TYPE_CHECKING:
+    from src.models.Post import Post
 
+class Media(db.Model):
     __tablename__ = "media"
 
-    id= db.column(primary_key=True)
-    type= db.column(db.String(50), nullable=False)
-    url= db.column(db.String(50), nullable=False)
-    post_id= db.column(db.Foreign_key('post.id'))
-   
-   #Relations
-    post = db.relationship('Post', back_populates='media')
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    type: Mapped[str] = mapped_column(String(50), nullable=False)
+    url: Mapped[str] = mapped_column(String(255), nullable=False)
+    post_id: Mapped[int] = mapped_column(ForeignKey("posts.id"))
 
-def serialize(self):
+    post: Mapped["Post"] = relationship("Post", back_populates="media")
+
+    def serialize(self):
         return {
             "id": self.id,
             "type": self.type,

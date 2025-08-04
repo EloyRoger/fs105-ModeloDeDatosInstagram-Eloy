@@ -6,10 +6,10 @@ from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
-from utils import APIException, generate_sitemap
-from admin import setup_admin
-from database.db import db
-from models.index import *
+from .utils import APIException, generate_sitemap
+from .admin import setup_admin
+from src.database.db import db
+from .models.index import *
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
@@ -21,8 +21,9 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-MIGRATE = Migrate(app, db)
 db.init_app(app)
+MIGRATE = Migrate(app, db)
+
 CORS(app)
 setup_admin(app)
 

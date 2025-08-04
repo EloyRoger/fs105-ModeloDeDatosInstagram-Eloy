@@ -1,27 +1,38 @@
-from database.db import db
-from datetime import datetime
+from typing import List, TYPE_CHECKING
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, String
+from src.database.db import db
 
-class User (db.Model):
+if TYPE_CHECKING:
+    from src.models.Follower import Follower
+    from src.models.Post import Post
+    from src.models.Comment import Comment
 
-    __tablename__ = "user"
+class User(db.Model):
+    __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50),unique=True, nullable=False)
-    email = db.Column(db.String(50),unique=True)
-    firstname= db.Column(db.String(50),nullable=False)
-    lastname= db.Column(db.String(50),nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(50), unique=True, nullable=True)
+    firstname: Mapped[str] = mapped_column(String(50), nullable=False)
+    lastname: Mapped[str] = mapped_column(String(50), nullable=False)
 
-#Relations
-    posts = db.relationship("Post", back_populates="user")
-    comments = db.relationship("Comment", back_populates="author")
+    posts: Mapped[List["Post"]] = relationship("Post", back_populates="user")
+    comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="author")
 
-    followers = db.relationship(
-        'User',
-        secondary='follower',
-        primaryjoin='User.id == Follower.user_to_id',
-        secondaryjoin='User.id == Follower.user_from_id',
-        backref=db.backref('following', lazy='dynamic'),
-        lazy='dynamic'
+    # Relaciones con la tabla follower a través del modelo Follower
+    followers_assoc: Mapped[List["Follower"]] = relationship(
+        "Follower",
+        foreign_keys="[Follower.user_to_id]",
+        back_populates="user_to",
+        lazy="dynamic"
+    )
+
+    following_assoc: Mapped[List["Follower"]] = relationship(
+        "Follower",
+        foreign_keys="[Follower.user_from_id]",
+        back_populates="user_from",
+        lazy="dynamic"
     )
 
     def serialize(self):

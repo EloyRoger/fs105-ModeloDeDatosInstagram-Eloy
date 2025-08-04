@@ -1,23 +1,22 @@
-from database.db import db
-from datetime import datetime
+from typing import TYPE_CHECKING
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey
+from src.database.db import db
 
-class Follower (db.Model):
+if TYPE_CHECKING:
+    from src.models.User import User
 
+class Follower(db.Model):
     __tablename__ = "follower"
-    __table_args__ = (
-        db.PrimaryKeyConstraint('user_from_id', 'user_to_id'),
-        {'extend_existing': True}
-    )
 
-    user_from_id = db.Column(db.Integer, db.ForeignKey('user.id'),primary_Key=True)
-    user_to_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_Key=True)
-  
-  #Relations
-    follower= db.relationship('User',foreign_keys=[user_from_id], back_populates='following')
-    following=db.relationship('User',foreign_keys=[user_to_id],back_populates='followers')
+    user_from_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    user_to_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+
+    user_from: Mapped["User"] = relationship("User", foreign_keys=[user_from_id], back_populates="following_assoc")
+    user_to: Mapped["User"] = relationship("User", foreign_keys=[user_to_id], back_populates="followers_assoc")
 
     def serialize(self):
         return {
-        "user_from_id":self.user_from_id,
-        "user_to_id":self.user_to_id,
+            "user_from_id": self.user_from_id,
+            "user_to_id": self.user_to_id,
         }

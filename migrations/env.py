@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from src.database.db import db
 
 import logging
 from logging.config import fileConfig
